@@ -11,7 +11,7 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
-
+const separator = `=`.repeat(42)
 const alphaNumArray = `0123456789`.split("")
 // maybe for later
 // const generateAlphaNumID = () => {
@@ -28,32 +28,26 @@ const alphaNumArray = `0123456789`.split("")
 const questions = [
     {
         name: `intro`,
-        type: `confirm`,
-        message: `
-Welcome.  
-=========================
-This is Team-Tree Generator. A simple survey of a team's member's basic information like name, role, and email that is used to render a web page (HTML). 
-=========================
-Would you like to enter the team's information one by one (recommended)? 
-
-[Select NO (n) for Advanced Mode]
-`,
+        // type: `confirm`,
+        message: `\nWelcome to Team-Tree Generator.\n${separator}\nA simple survey of a team's member's basic information \nlike name, role, and email that is used to render a web page (HTML).\n${separator}\n`,
+        // [n = Advanced Mode: enter all data in one line (feature coming soon)]
+        // when: count < 1,
     },
-    {
-        name: `advMode`,
-        type: `input`,
-        message: `enter in one line`,
-        // validate: function (){},
-        when: answers => !answers.intro,
-    }
+    // {
+    //     name: `advMode`,
+    //     type: `input`,
+    //     message: `\nI'm sorry I just can't do that. \nAdvanced features are currently under production. Come back soon\n==================================================================`,
+    //     // validate: function (){},
+    //     when: answers => !answers.intro,
+    // }
 
 ]
-let count = 1
+let count = 0
 const questionsTeam = [
     {
         name: `name`,
         type: `input`,
-        message: `Enter employee's name.`,
+        message: `Enter team member's name.`,
         validate: async input => {
             if (input === null || input === ` ` || input === `  ` || input === `   ` || input.length < 3) {
                 return `A name is required (min. 3 characters)`
@@ -64,14 +58,14 @@ const questionsTeam = [
     {
         name: `role`,
         type: `list`,
-        message: `Is this employee a Manager, Engineer, or Intern?`,
-        choices: [`Other (Employee)`, `Manager`, `Engineer`, `Intern`],
-        default: `Other (Employee)`
+        message: `Is this team member a Manager, Engineer, or Intern?`,
+        choices: [`Manager`, `Engineer`, `Intern`, new inquirer.Separator(`-------`), `Other (Employee)`],
+        // default: `Other (Employee)`
     },
     {
         name: `id`,
         type: `input`,
-        message: `Enter employee's numeric id.`,
+        message: `Enter team member's numeric id.`,
         // default: generateID,
         validate: async input => {
             if (!input || input === NaN || isNaN(input)) {
@@ -83,7 +77,7 @@ const questionsTeam = [
     {
         name: `email`,
         type: `input`,
-        message: `Enter employee's email address.`,
+        message: `Enter team member's email address.`,
         validate: async input => {
             if (!input) {
                 return `An email address is required`
@@ -131,7 +125,7 @@ const askUser = async () => {
         while (keepAsking) {
             const { name, id, email, role, school, github, officenum, askAgain } = await inquirer.prompt(questionsTeam)
             count++
-            console.log(`=`.repeat(42))
+            console.log(separator)
             // make new employee obj depending on role of employee (using answers)
             switch (role) {
                 case `Manager`:
@@ -150,20 +144,38 @@ const askUser = async () => {
 
             if (!askAgain) {
                 keepAsking = false
-                console.log(`Thank you for using Team-Tree Generator.\nThe information of ${employeesArray} has been gathered.\n\nGoodbye!`)
+                let allMembers = employeesArray.map(data => data.name).join(`, `)
+                let lastPerson = employeesArray[employeesArray.length - 1].name.trim()
+                // if there is more than one team member, then find the last person and adhere an ampersond adding emphasis and alliteration
+                if (employeesArray.length > 2) {
+                    allMembers = allMembers.replace(lastPerson, `& ${lastPerson}`)
+                } else if(employeesArray.length > 1){
+                    allMembers = allMembers.replace(`, ${lastPerson}`, ` & ${lastPerson}`)
+                }
+
+                console.log(`Thank you for using Team-Tree Generator.\n\nThe information for ${allMembers} will be used to fill a simple web page.\n\nCheck for an "output" folder.\n\\^_^/`)
             }
         }
+        const renderedhtml = render(employeesArray)
 
-        // console.log(employeesArray)
+        fs.writeFile(outputPath, renderedhtml, err => {
+            if (err) throw err
+        })
     }
     catch (err) {
         console.log(err)
     }
 }
-
+const teamMembers = (array) => {
+    array.forEach(i => i.name)
+}
 const askDefaultUser = () => {
-    questionsTeam[0].default = `Gustavo Valenzuela`
-    questionsTeam[1].default = 6699
+    questionsTeam[1-1].default = `Gustavo Valenzuela`
+    questionsTeam[3-1].default = 6699
+    questionsTeam[4-1].default = `sample@gmail.com`
+    questionsTeam[5-1].default = `DA STREETZ`
+    questionsTeam[6-1].default = `gusvalenzuela`
+    questionsTeam[7-1].default = 42
     questionsTeam[questionsTeam.length - 1].default = false
     askUser()
 }
