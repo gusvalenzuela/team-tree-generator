@@ -39,7 +39,13 @@ const questions = [
     //     message: `\nI'm sorry I just can't do that. \nAdvanced features are currently under production. Come back soon\n==================================================================`,
     //     // validate: function (){},
     //     when: answers => !answers.intro,
-    // }
+    // },
+    {
+        name: `projectname`,
+        type: `input`,
+        message: `What is the name the project this team will be working on?`,
+        default: `Untitled Project`
+    },
 
 ]
 let count = 0
@@ -119,7 +125,7 @@ const questionsTeam = [
 const employeesArray = []
 const askUser = async () => {
     try {
-        await inquirer.prompt(questions)
+        const { projectname } = await inquirer.prompt(questions)
 
         let keepAsking = true
         while (keepAsking) {
@@ -144,18 +150,18 @@ const askUser = async () => {
 
             if (!askAgain) {
                 keepAsking = false
-                let allMembers = employeesArray.map(data => data.name).join(`, `)
-                let lastPerson = employeesArray[employeesArray.length - 1].name.trim()
+                let allMembers = employeesArray.map(data => data.name.split(` `)[0]).join(`, `)
+                let lastPerson = employeesArray[employeesArray.length - 1].name.trim().split(` `)[0]
                 // if there is more than one team member, then find the last person and adhere an ampersond adding emphasis and alliteration
                 if (employeesArray.length > 2) {
                     allMembers = allMembers.replace(lastPerson, `& ${lastPerson}`)
-                } else if(employeesArray.length > 1){
+                } else if (employeesArray.length > 1) {
                     allMembers = allMembers.replace(`, ${lastPerson}`, ` & ${lastPerson}`)
                 }
-
-                console.log(`Thank you for using Team-Tree Generator.\n\nThe information for ${allMembers} will be used to fill a simple web page.\n\nCheck for an "output" folder.\n\\^_^/`)
+                console.log(`\nThank you for using Team-Tree Generator.\n\nThe information for ${allMembers} will be used to fill a simple web page.\n\nCheck for an "output" folder.\n\\^_^/`)
             }
         }
+        employeesArray.unshift(projectname)
         const renderedhtml = render(employeesArray)
 
         fs.writeFile(outputPath, renderedhtml, err => {
@@ -170,12 +176,12 @@ const teamMembers = (array) => {
     array.forEach(i => i.name)
 }
 const askDefaultUser = () => {
-    questionsTeam[1-1].default = `Gustavo Valenzuela`
-    questionsTeam[3-1].default = 6699
-    questionsTeam[4-1].default = `sample@gmail.com`
-    questionsTeam[5-1].default = `DA STREETZ`
-    questionsTeam[6-1].default = `gusvalenzuela`
-    questionsTeam[7-1].default = 42
+    questionsTeam[1 - 1].default = `Gustavo Valenzuela`
+    questionsTeam[3 - 1].default = 6699
+    questionsTeam[4 - 1].default = `sample@gmail.com`
+    questionsTeam[5 - 1].default = `DA STREETZ`
+    questionsTeam[6 - 1].default = `gusvalenzuela`
+    questionsTeam[7 - 1].default = 42
     questionsTeam[questionsTeam.length - 1].default = false
     askUser()
 }
