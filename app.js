@@ -139,7 +139,7 @@ const askUser = async () => {
         while (keepAsking) {
             if (selectMode) {
                 const { name, id, email, role, school, github, officenum, askAgain } = await inquirer.prompt(questionsTeam)
-                count++
+                // count++
                 console.log(separator)
 
                 // make new employee obj depending on role of employee (using answers)
@@ -226,11 +226,14 @@ const renderMemberList = (array) => {
         allMembers = allMembers.replace(`${lastPerson}++`, `& ${lastPerson}`)
     } else if (array.length > 1) {
         allMembers = allMembers.replace(`, ${lastPerson}++`, ` & ${lastPerson}`)
+    } else {
+        allMembers = allMembers.replace(`${lastPerson}++`, `${lastPerson}`)
     }
-    console.log(`\nThank you for using Team-Tree Generator.\n\nThe information for ${allMembers} will be used to fill a simple web page.\nLook for an "output" folder with a "team.html" file.\n\n\\^_^/`)
-
+    
     // put the first name of last person back as it was, sans '++'
     array[lastElement].name = `${lastPerson} ${array[lastElement].name.trim().split(` `)[1]}`
+
+    console.log(`\nThank you for using Team-Tree Generator.\n\nThe information for ${allMembers} will be used to fill a simple web page.\nLook for an "output" folder with a "team.html" file.\n\n\\^_^/`)
 }
 const quickQuestions = [
     {
